@@ -14,13 +14,11 @@ export async function middleware(request: NextRequest) {
     {
       cookies: {
         getAll() { return request.cookies.getAll() },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           )
         },
       },
@@ -31,16 +29,14 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   const isProtected = PROTECTED_ROUTES.some(r => path.startsWith(r))
-  const isAuthRoute = AUTH_ROUTES.some(r => path.startsWith(r))
-
   if (isProtected && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('redirect', path)
-    return NextResponse.redirect(url)
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('redirect', path)
+    return NextResponse.redirect(loginUrl)
   }
 
-  if (isAuthRoute && user) {
+  const isAuthOnly = AUTH_ROUTES.some(r => path.startsWith(r))
+  if (isAuthOnly && user) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
@@ -48,5 +44,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api).*)'],
 }
