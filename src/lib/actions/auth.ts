@@ -25,18 +25,13 @@ export type AuthResult = { success: boolean; error?: string }
 
 // ── Login ──────────────────────────────────────────────────────────────────
 
-export async function loginWithEmail(
-  formData: FormData
-): Promise<AuthResult> {
+export async function loginWithEmail(formData: FormData): Promise<AuthResult> {
   const raw = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   }
-
   const parsed = LoginSchema.safeParse(raw)
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
+  if (!parsed.success) return { success: false, error: parsed.error.errors[0].message }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({
@@ -45,46 +40,36 @@ export async function loginWithEmail(
   })
 
   if (error) {
-    if (error.message.includes('Invalid login')) {
-      return { success: false, error: 'Incorrect email or password' }
-    }
+    if (error.message.includes('Invalid login')) return { success: false, error: 'Incorrect email or password' }
     return { success: false, error: error.message }
   }
-
   redirect('/')
 }
 
 // ── Register ───────────────────────────────────────────────────────────────
 
-export async function registerWithEmail(
-  formData: FormData
-): Promise<AuthResult> {
+export async function registerWithEmail(formData: FormData): Promise<AuthResult> {
   const raw = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     username: (formData.get('username') as string).toLowerCase().trim(),
     display_name: (formData.get('display_name') as string) || undefined,
   }
-
   const parsed = RegisterSchema.safeParse(raw)
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
+  if (!parsed.success) return { success: false, error: parsed.error.errors[0].message }
 
   const supabase = await createClient()
 
   // Check username availability
-  const { data: existing } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existing } = await (supabase as any)
     .from('profiles')
     .select('id')
     .eq('username', parsed.data.username)
     .maybeSingle()
 
-  if (existing) {
-    return { success: false, error: 'Username is already taken' }
-  }
+  if (existing) return { success: false, error: 'Username is already taken' }
 
-  // Sign up
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -97,15 +82,13 @@ export async function registerWithEmail(
   })
 
   if (error) {
-    if (error.message.includes('already registered')) {
-      return { success: false, error: 'An account with this email already exists' }
-    }
+    if (error.message.includes('already registered')) return { success: false, error: 'An account with this email already exists' }
     return { success: false, error: error.message }
   }
 
-  // Update profile display_name if provided (trigger creates the row)
   if (data.user && parsed.data.display_name) {
-    await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
       .from('profiles')
       .update({ display_name: parsed.data.display_name })
       .eq('id', data.user.id)
@@ -125,7 +108,6 @@ export async function loginWithGoogle(): Promise<AuthResult> {
       queryParams: { prompt: 'select_account' },
     },
   })
-
   if (error) return { success: false, error: error.message }
   if (data.url) redirect(data.url)
   return { success: true }
@@ -157,16 +139,12 @@ export async function updateProfile(
   if (!user) return { success: false, error: 'Not authenticated' }
 
   const parsed = ProfileUpdateSchema.safeParse(data)
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0].message }
-  }
+  if (!parsed.success) return { success: false, error: parsed.error.errors[0].message }
 
-  const { error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
     .from('profiles')
-    .update({
-      ...parsed.data,
-      updated_at: new Date().toISOString(),
-    })
+    .update({ ...parsed.data, updated_at: new Date().toISOString() })
     .eq('id', user.id)
 
   if (error) return { success: false, error: error.message }
@@ -185,8 +163,10 @@ export async function toggleFollow(targetUserId: string): Promise<{
   if (!user) return { success: false, following: false, error: 'Not authenticated' }
   if (user.id === targetUserId) return { success: false, following: false, error: 'Cannot follow yourself' }
 
-  // Check existing
-  const { data: existing } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any
+
+  const { data: existing } = await db
     .from('follows')
     .select('follower_id')
     .eq('follower_id', user.id)
@@ -194,18 +174,12 @@ export async function toggleFollow(targetUserId: string): Promise<{
     .maybeSingle()
 
   if (existing) {
-    // Unfollow
-    await supabase
-      .from('follows')
-      .delete()
+    await db.from('follows').delete()
       .eq('follower_id', user.id)
       .eq('following_id', targetUserId)
     return { success: true, following: false }
   } else {
-    // Follow
-    await supabase
-      .from('follows')
-      .insert({ follower_id: user.id, following_id: targetUserId })
+    await db.from('follows').insert({ follower_id: user.id, following_id: targetUserId })
     return { success: true, following: true }
   }
 }

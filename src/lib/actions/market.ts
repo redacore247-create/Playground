@@ -3,21 +3,17 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { z } from 'zod'
-import type { Market, MarketOption } from '@/types/database'
+import type { Market } from '@/types/database'
 
 // ── Fetch ──────────────────────────────────────────────────────────────────
 
 export async function getMarkets(filter: 'open' | 'resolved' | 'all' = 'open') {
   const supabase = await createClient()
 
-  let query = supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let query = (supabase as any)
     .from('markets')
-    .select(`
-      *,
-      profiles (id, username, display_name, avatar_url),
-      releases (id, title, type, cover_image_url),
-      market_options (*)
-    `)
+    .select(`*, profiles (id, username, display_name, avatar_url), releases (id, title, type, cover_image_url), market_options (*)`)
     .order('created_at', { ascending: false })
     .limit(20)
 
@@ -34,22 +30,18 @@ export async function getMarketById(id: string): Promise<Market | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('markets')
-    .select(`
-      *,
-      profiles (id, username, display_name, avatar_url),
-      releases (id, title, type, cover_image_url),
-      market_options (*)
-    `)
+    .select(`*, profiles (id, username, display_name, avatar_url), releases (id, title, type, cover_image_url), market_options (*)`)
     .eq('id', id)
     .single()
 
   if (error || !data) return null
 
-  // Attach user's prediction if logged in
   if (user) {
-    const { data: pred } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: pred } = await (supabase as any)
       .from('predictions')
       .select('*')
       .eq('market_id', id)
@@ -86,8 +78,8 @@ export async function createMarket(input: z.infer<typeof CreateMarketSchema>): P
 
   const admin = await createAdminClient()
 
-  // Insert market
-  const { data: market, error: mErr } = await admin
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: market, error: mErr } = await (admin as any)
     .from('markets')
     .insert({
       creator_id: user.id,
@@ -102,9 +94,9 @@ export async function createMarket(input: z.infer<typeof CreateMarketSchema>): P
 
   if (mErr) return { success: false, error: mErr.message }
 
-  // Insert options
-  const { error: oErr } = await admin.from('market_options').insert(
-    parsed.data.options.map(label => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error: oErr } = await (admin as any).from('market_options').insert(
+    parsed.data.options.map((label: string) => ({
       market_id: market.id,
       label,
     }))
@@ -164,7 +156,8 @@ export interface LeaderboardEntry {
 export async function getLeaderboard(limit = 20): Promise<LeaderboardEntry[]> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('profiles')
     .select('id, username, display_name, avatar_url, vibe_points')
     .order('vibe_points', { ascending: false })
@@ -172,5 +165,6 @@ export async function getLeaderboard(limit = 20): Promise<LeaderboardEntry[]> {
 
   if (error || !data) return []
 
-  return data.map((p, i) => ({ ...p, rank: i + 1 }))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((p, i) => ({ ...p, rank: i + 1 }))
 }

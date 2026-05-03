@@ -13,20 +13,23 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Ensure profile exists (Google OAuth users might not trigger the DB trigger
-      // if email is confirmed immediately)
-      const { data: profile } = await supabase
+      // Check if profile exists
+      const { data: existing } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', data.user.id)
         .maybeSingle()
 
-      if (!profile) {
+      if (!existing) {
         const email = data.user.email ?? ''
-        const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_')
+        const baseUsername = email
+          .split('@')[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9_]/g, '_')
         const username = `${baseUsername}_${data.user.id.slice(0, 6)}`
 
-        await supabase.from('profiles').insert({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase.from('profiles') as any).insert({
           id: data.user.id,
           username,
           display_name: data.user.user_metadata?.full_name ?? username,

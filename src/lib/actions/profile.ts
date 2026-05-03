@@ -16,14 +16,14 @@ export interface FullProfile {
   correct_predictions: number
 }
 
-export async function getProfileByUsername(
-  username: string
-): Promise<FullProfile | null> {
+export async function getProfileByUsername(username: string): Promise<FullProfile | null> {
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
 
-  // Fetch target profile
-  const { data: profile, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any
+
+  const { data: profile, error } = await db
     .from('profiles')
     .select('*')
     .eq('username', username)
@@ -31,7 +31,6 @@ export async function getProfileByUsername(
 
   if (error || !profile) return null
 
-  // Parallel fetch all related data
   const [
     { data: releases },
     { count: followerCount },
@@ -40,57 +39,51 @@ export async function getProfileByUsername(
     { data: transactions },
     { data: predictions },
   ] = await Promise.all([
-    supabase
-      .from('releases')
+    db.from('releases')
       .select('*, profiles(id, username, display_name, avatar_url)')
       .eq('creator_id', profile.id)
       .eq('status', 'published')
       .order('released_at', { ascending: false })
       .limit(12),
 
-    supabase
-      .from('follows')
+    db.from('follows')
       .select('*', { count: 'exact', head: true })
       .eq('following_id', profile.id),
 
-    supabase
-      .from('follows')
+    db.from('follows')
       .select('*', { count: 'exact', head: true })
       .eq('follower_id', profile.id),
 
     authUser && authUser.id !== profile.id
-      ? supabase
-          .from('follows')
+      ? db.from('follows')
           .select('follower_id')
           .eq('follower_id', authUser.id)
           .eq('following_id', profile.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
 
-    // Last 20 transactions (own profile only)
     authUser?.id === profile.id
-      ? supabase
-          .from('point_transactions')
+      ? db.from('point_transactions')
           .select('*')
           .eq('user_id', profile.id)
           .order('created_at', { ascending: false })
           .limit(20)
       : Promise.resolve({ data: [] }),
 
-    // Prediction stats
-    supabase
-      .from('predictions')
+    db.from('predictions')
       .select('points_returned')
       .eq('user_id', profile.id),
   ])
 
-  const correctPredictions = predictions?.filter(
-    p => p.points_returned !== null && p.points_returned > 0
-  ).length ?? 0
+  const correctPredictions = (predictions ?? []).filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (p: any) => p.points_returned !== null && p.points_returned > 0
+  ).length
 
-  const totalTipsReceived = releases?.reduce(
-    (sum, r) => sum + (r.tip_total ?? 0), 0
-  ) ?? 0
+  const totalTipsReceived = (releases ?? []).reduce(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (sum: number, r: any) => sum + (r.tip_total ?? 0), 0
+  )
 
   return {
     profile: profile as Profile,
