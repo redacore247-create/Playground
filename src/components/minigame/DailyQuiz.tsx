@@ -30,7 +30,7 @@ export function DailyQuiz({ canPlay, playsToday, maxPlays, onWin }: DailyQuizPro
   const [totalMs, setTotalMs] = useState(0)
   const [sessionStart, setSessionStart] = useState(0)
   const [submitted, setSubmitted] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setInterval>>()
+  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   const current = questions[qIndex]
 

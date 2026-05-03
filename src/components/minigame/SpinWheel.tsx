@@ -34,7 +34,7 @@ export function SpinWheel({ canPlay, playsToday, maxPlays, onWin }: SpinWheelPro
   const [spinning, setSpinning] = useState(false)
   const [result, setResult] = useState<SpinResult | null>(null)
   const [currentAngle, setCurrentAngle] = useState(0)
-  const animRef = useRef<number>()
+  const animRef = useRef<number | undefined>(undefined)
   const angleRef = useRef(0)
 
   // Draw wheel on canvas
