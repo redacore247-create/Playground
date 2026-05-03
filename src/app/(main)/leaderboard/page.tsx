@@ -24,10 +24,7 @@ export default async function LeaderboardPage() {
     <>
       <TopBar profile={profile} title="Leaderboard" />
       <div className="max-w-lg mx-auto px-4 py-4 pb-8">
-        <Leaderboard
-          entries={entries}
-          currentUserId={user?.id}
-        />
+        <Leaderboard entries={entries} currentUserId={user?.id} />
       </div>
     </>
   )

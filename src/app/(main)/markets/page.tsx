@@ -31,17 +31,14 @@ export default async function MarketsPage({
       .select('*')
       .eq('id', authData.user.id)
       .single()
-    profile = data
+    profile = data as Profile | null
   }
 
   return (
     <>
       <TopBar profile={profile} title="Markets" />
-
-      {/* Filter tabs */}
       <MarketsFilters active={filter} />
 
-      {/* Create market CTA */}
       {profile && (
         <div className="px-4 pt-3 max-w-lg mx-auto">
           <Link
@@ -54,7 +51,6 @@ export default async function MarketsPage({
         </div>
       )}
 
-      {/* Markets list */}
       <div className="px-4 pt-3 pb-6 space-y-3 max-w-lg mx-auto">
         {(markets ?? []).map(market => (
           <MarketCard
@@ -63,7 +59,6 @@ export default async function MarketsPage({
             currentUserId={authData.user?.id}
           />
         ))}
-
         {(!markets || markets.length === 0) && (
           <div className="py-16 text-center">
             <p className="text-zinc-500">No markets yet.</p>

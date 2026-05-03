@@ -11,13 +11,14 @@ export default async function SettingsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login?redirect=/settings')
 
-  const { data: profile } = await supabase
+  const { data } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
+  const profile = data as Profile | null
   if (!profile) redirect('/')
 
-  return <SettingsClient profile={profile as Profile} />
+  return <SettingsClient profile={profile} />
 }

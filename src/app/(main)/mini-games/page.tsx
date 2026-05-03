@@ -11,22 +11,20 @@ export const metadata = { title: 'Mini Games' }
 export default async function MiniGamesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) redirect('/login?redirect=/mini-games')
 
-  // Parallel fetch profile + game status
-  const [{ data: profile }, gameStatus] = await Promise.all([
+  const [profileResult, gameStatus] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).single(),
     getGameStatus(),
   ])
 
+  const profile = profileResult.data as Profile | null
+  if (!profile) redirect('/')
+
   return (
     <>
-      <TopBar profile={profile as Profile} title="Mini Games" />
-      <MiniGamesClient
-        initialProfile={profile as Profile}
-        gameStatus={gameStatus}
-      />
+      <TopBar profile={profile} title="Mini Games" />
+      <MiniGamesClient initialProfile={profile} gameStatus={gameStatus} />
     </>
   )
 }

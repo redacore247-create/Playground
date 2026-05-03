@@ -29,12 +29,11 @@ export default async function MarketDetailPage({
 
   if (!market) notFound()
 
+  const profile = profileResult.data as Profile | null
+
   return (
     <div className="min-h-dvh bg-zinc-950 pb-8">
-      <MarketDetailClient
-        market={market}
-        profile={profileResult.data as Profile | null}
-      />
+      <MarketDetailClient market={market} profile={profile} />
     </div>
   )
 }

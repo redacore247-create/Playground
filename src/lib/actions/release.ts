@@ -1,7 +1,6 @@
 // src/lib/actions/release.ts
 'use server'
 
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import type { ReleaseType } from '@/types/database'
@@ -25,29 +24,14 @@ export async function createRelease(formData: ReleaseFormData): Promise<{
 }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
   if (!user) return { success: false, error: 'Not authenticated' }
 
-  // Validate
   const parsed = ReleaseSchema.safeParse(formData)
   if (!parsed.success) {
     return { success: false, error: parsed.error.errors[0].message }
   }
 
-  const { data, error } = supabase.from('releases').insert({
-    creator_id: user.id,
-    title: parsed.data.title,
-    type: parsed.data.type as ReleaseType,
-    description: parsed.data.description || null,
-    link_youtube: parsed.data.link_youtube || null,
-    link_soundcloud: parsed.data.link_soundcloud || null,
-    cover_image_url: parsed.data.cover_image_url || null,
-    status: parsed.data.status,
-    released_at: parsed.data.status === 'published' ? new Date().toISOString() : null,
-  }).select('id').single()
-
-  // TypeScript fix: chain awaits separately
-  const result = await (supabase
+  const { data, error } = await supabase
     .from('releases')
     .insert({
       creator_id: user.id,
@@ -61,19 +45,18 @@ export async function createRelease(formData: ReleaseFormData): Promise<{
       released_at: parsed.data.status === 'published' ? new Date().toISOString() : null,
     })
     .select('id')
-    .single())
+    .single()
 
-  if (result.error) {
-    console.error('[createRelease]', result.error)
-    return { success: false, error: result.error.message }
+  if (error) {
+    console.error('[createRelease]', error)
+    return { success: false, error: error.message }
   }
 
-  return { success: true, releaseId: result.data.id }
+  return { success: true, releaseId: (data as { id: string }).id }
 }
 
 export async function uploadCoverImage(file: File, userId: string): Promise<string | null> {
   const supabase = await createClient()
-
   const ext = file.name.split('.').pop()
   const path = `covers/${userId}/${Date.now()}.${ext}`
 

@@ -15,12 +15,13 @@ export default async function CreateReleasePage() {
 
   if (!user) redirect('/login?redirect=/create-release')
 
-  // Check artist role
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
+
+  const profile = profileData as Profile | null
 
   return (
     <>
@@ -37,7 +38,6 @@ export default async function CreateReleasePage() {
             New Release
           </h1>
 
-          {/* Artist role required notice */}
           {!profile?.is_artist && (
             <span className="ml-auto text-xs text-amber-400 border border-amber-500/30 bg-amber-500/10 px-2 py-1 rounded-lg">
               Artist mode
@@ -46,7 +46,6 @@ export default async function CreateReleasePage() {
         </div>
       </header>
 
-      {/* Artist role gate */}
       {!profile?.is_artist ? (
         <div className="max-w-lg mx-auto px-4 py-16 text-center">
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4">
@@ -58,8 +57,8 @@ export default async function CreateReleasePage() {
           <p className="text-zinc-500 text-sm mb-6">
             Enable Artist mode in your profile to publish releases.
           </p>
-          <Link href="/profile/settings" className="btn-primary">
-            Go to Profile Settings
+          <Link href="/settings" className="btn-primary">
+            Go to Settings
           </Link>
         </div>
       ) : (
