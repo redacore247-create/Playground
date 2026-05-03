@@ -1,0 +1,140 @@
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --glow-vibe: 74, 185, 74;
+    --glow-plasma: 204, 68, 232;
+    --glow-gold: 255, 229, 102;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #71717a; }
+}
+
+@layer components {
+  /* Vibe Points badge glow */
+  .vp-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono font-medium;
+    background: rgba(74, 185, 74, 0.12);
+    border: 1px solid rgba(74, 185, 74, 0.3);
+    color: #4ab94a;
+    text-shadow: 0 0 12px rgba(74, 185, 74, 0.6);
+  }
+
+  /* Plasma glow for prediction markets */
+  .plasma-glow {
+    box-shadow: 0 0 20px rgba(204, 68, 232, 0.15), 0 0 60px rgba(204, 68, 232, 0.05);
+  }
+
+  /* Card dark glass */
+  .card-dark {
+    @apply rounded-2xl border border-zinc-800/60;
+    background: linear-gradient(135deg, rgba(24,24,27,0.95) 0%, rgba(18,18,20,0.98) 100%);
+  }
+
+  /* Noise texture overlay */
+  .noise-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Shimmer loading state */
+  .shimmer {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.03) 25%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.03) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Grid pattern background */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Bottom nav safe area */
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Glassmorphism input */
+  .input-glass {
+    @apply bg-zinc-900/80 border border-zinc-700/60 rounded-xl px-4 py-3;
+    @apply text-zinc-100 placeholder:text-zinc-600;
+    @apply focus:outline-none focus:ring-2 focus:ring-vibe-500/40 focus:border-vibe-500/40;
+    @apply transition-all duration-200;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-6 py-3 rounded-xl font-medium text-sm;
+    @apply bg-vibe-500 hover:bg-vibe-400 text-white;
+    @apply transition-all duration-200 active:scale-95;
+    @apply disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2.5 rounded-xl font-medium text-sm;
+    @apply border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-zinc-100;
+    @apply transition-all duration-200 active:scale-95;
+  }
+
+  /* Release type pill */
+  .type-pill {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+@layer utilities {
+  .text-gradient-vibe {
+    background: linear-gradient(135deg, #4ab94a 0%, #22a022 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-plasma {
+    background: linear-gradient(135deg, #e171f3 0%, #cc44e8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #FFE566 0%, #FF7A3D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
