@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Brain, CheckCircle2, XCircle, Trophy, RotateCcw, Lock, Zap, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getQuizQuestions, submitQuizResult } from '@/lib/actions/mini-games'
-import type { QuizQuestion } from '@/lib/actions/mini-games'
+import type { QuizQuestion } from '@/lib/mini-games-config'
 
 interface DailyQuizProps {
   canPlay: boolean

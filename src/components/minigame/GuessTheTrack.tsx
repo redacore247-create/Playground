@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Music, Timer, Zap, CheckCircle2, XCircle, RefreshCw, Lock, Play, Pause } from 'lucide-react'
 import { cn, formatVP, extractYouTubeId } from '@/lib/utils'
 import { getTrackQuestion, submitTrackGuess } from '@/lib/actions/mini-games'
-import type { TrackQuestion } from '@/lib/actions/mini-games'
+import type { TrackQuestion } from '@/lib/mini-games-config'
 
 interface GuessTheTrackProps {
   canPlay: boolean

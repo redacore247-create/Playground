@@ -4,8 +4,9 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { Zap, RotateCw, Trophy, Lock } from 'lucide-react'
 import { cn, formatVP } from '@/lib/utils'
-import { spinWheel, SPIN_SEGMENTS } from '@/lib/actions/mini-games'
-import type { SpinResult } from '@/lib/actions/mini-games'
+import { spinWheel } from '@/lib/actions/mini-games'
+import { SPIN_SEGMENTS } from '@/lib/mini-games-config'
+import type { SpinResult } from '@/lib/mini-games-config'
 
 // Segment colors — alternating palette
 const SEG_COLORS = [

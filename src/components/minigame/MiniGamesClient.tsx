@@ -11,7 +11,7 @@ import { GuessTheTrack } from './GuessTheTrack'
 import { DailyQuiz } from './DailyQuiz'
 import { VPToast } from './VPToast'
 import type { Profile } from '@/types/database'
-import type { AllGameStatus, SpinResult } from '@/lib/actions/mini-games'
+import type { AllGameStatus, SpinResult } from '@/lib/mini-games-config'
 
 interface MiniGamesClientProps {
   initialProfile: Profile
