@@ -37,8 +37,7 @@ export async function getGameStatus(): Promise<AllGameStatus | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = 
+  const db = supabase
   const today = new Date().toISOString().split('T')[0]
 
   const [{ data: sessions }, { data: checkin }] = await Promise.all([
@@ -192,7 +191,7 @@ export interface TrackQuestion {
 export async function getTrackQuestion(): Promise<TrackQuestion | null> {
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = 
+  const db = supabase
 
   const { data: releases } = await db
     .from('releases')
