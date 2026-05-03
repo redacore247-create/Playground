@@ -34,7 +34,7 @@ export async function mutateVibePoints({
   const supabase = await createAdminClient()
 
   // Call the atomic Postgres function (defined in migrations)
-  const { data, error } = await supabase.rpc('mutate_vibe_points', {
+  const { data, error } = await (supabase as any).rpc('mutate_vibe_points', {
     p_user_id: userId,
     p_amount: amount,
     p_type: type,
@@ -79,7 +79,7 @@ export async function sendTip({
   if (release.creator_id === user.id) return { success: false, error: 'Cannot tip your own release' }
 
   // Atomic: deduct sender + credit artist + insert tip row
-  const { data, error } = await supabase.rpc('send_tip', {
+  const { data, error } = await (supabase as any).rpc('send_tip', {
     p_sender_id: user.id,
     p_release_id: releaseId,
     p_creator_id: release.creator_id,
@@ -109,7 +109,7 @@ export async function placePrediction({
 
   const supabase = await createAdminClient()
 
-  const { data, error } = await supabase.rpc('place_prediction', {
+  const { data, error } = await (supabase as any).rpc('place_prediction', {
     p_user_id: user.id,
     p_market_id: marketId,
     p_option_id: optionId,
@@ -138,7 +138,7 @@ export async function recordMiniGame({
 
   const supabase = await createAdminClient()
 
-  const { data, error } = await supabase.rpc('record_mini_game', {
+  const { data, error } = await (supabase as any).rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: gameType,
     p_points_earned: pointsEarned,
@@ -165,7 +165,7 @@ export async function dailyCheckin(): Promise<{
 
   const supabase = await createAdminClient()
 
-  const { data, error } = await supabase.rpc('daily_checkin', {
+  const { data, error } = await (supabase as any).rpc('daily_checkin', {
     p_user_id: user.id,
   })
 

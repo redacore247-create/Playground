@@ -125,7 +125,7 @@ export async function spinWheel(): Promise<{
   const seg = SPIN_SEGMENTS[chosen]
 
   const admin = await createAdminClient()
-  const { data, error } = await admin.rpc('record_mini_game', {
+  const { data, error } = await (admin as any).rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'spin_wheel',
     p_points_earned: seg.points,
@@ -161,7 +161,7 @@ export async function doCheckin(): Promise<{
   if (!user) return { success: false, error: 'Not authenticated' }
 
   const admin = await createAdminClient()
-  const { data, error } = await admin.rpc('daily_checkin', { p_user_id: user.id })
+  const { data, error } = await (admin as any).rpc('daily_checkin', { p_user_id: user.id })
 
   if (error) {
     if (error.message.includes('already_checked_in')) {
@@ -234,7 +234,7 @@ export async function submitTrackGuess({
   if (points === 0) return { success: true, points_earned: 0 }
 
   const admin = await createAdminClient()
-  const { data, error } = await admin.rpc('record_mini_game', {
+  const { data, error } = await (admin as any).rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'guess_the_track',
     p_points_earned: points,
@@ -300,7 +300,7 @@ export async function submitQuizResult({
   if (points === 0) return { success: true, points_earned: 0 }
 
   const admin = await createAdminClient()
-  const { data, error } = await admin.rpc('record_mini_game', {
+  const { data, error } = await (admin as any).rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'daily_quiz',
     p_points_earned: points,

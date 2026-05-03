@@ -123,7 +123,7 @@ export async function placeBet({
   if (!user) return { success: false, error: 'Not authenticated' }
 
   const admin = await createAdminClient()
-  const { data, error } = await admin.rpc('place_prediction', {
+  const { data, error } = await (admin as any).rpc('place_prediction', {
     p_user_id: user.id,
     p_market_id: marketId,
     p_option_id: optionId,
