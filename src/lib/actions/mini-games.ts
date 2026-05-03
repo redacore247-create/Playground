@@ -38,7 +38,7 @@ export async function getGameStatus(): Promise<AllGameStatus | null> {
   if (!user) return null
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = supabase as any
+  const db = 
   const today = new Date().toISOString().split('T')[0]
 
   const [{ data: sessions }, { data: checkin }] = await Promise.all([
@@ -128,7 +128,7 @@ export async function spinWheel(): Promise<{
 
   const admin = await createAdminClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any).rpc('record_mini_game', {
+  const { data, error } = await admin.rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'spin_wheel',
     p_points_earned: seg.points,
@@ -163,7 +163,7 @@ export async function doCheckin(): Promise<{
 
   const admin = await createAdminClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any).rpc('daily_checkin', { p_user_id: user.id })
+  const { data, error } = await admin.rpc('daily_checkin', { p_user_id: user.id })
 
   if (error) {
     if (error.message.includes('already_checked_in')) return { success: true, already_checked_in: true }
@@ -192,7 +192,7 @@ export interface TrackQuestion {
 export async function getTrackQuestion(): Promise<TrackQuestion | null> {
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = supabase as any
+  const db = 
 
   const { data: releases } = await db
     .from('releases')
@@ -236,7 +236,7 @@ export async function submitTrackGuess({
 
   const admin = await createAdminClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any).rpc('record_mini_game', {
+  const { data, error } = await admin.rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'guess_the_track',
     p_points_earned: points,
@@ -297,7 +297,7 @@ export async function submitQuizResult({
 
   const admin = await createAdminClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (admin as any).rpc('record_mini_game', {
+  const { data, error } = await admin.rpc('record_mini_game', {
     p_user_id: user.id,
     p_game_type: 'daily_quiz',
     p_points_earned: points,

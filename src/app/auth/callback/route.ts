@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Check if profile exists
       const { data: existing } = await supabase
         .from('profiles')
         .select('id')
@@ -22,14 +21,10 @@ export async function GET(request: NextRequest) {
 
       if (!existing) {
         const email = data.user.email ?? ''
-        const baseUsername = email
-          .split('@')[0]
-          .toLowerCase()
-          .replace(/[^a-z0-9_]/g, '_')
+        const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_')
         const username = `${baseUsername}_${data.user.id.slice(0, 6)}`
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase.from('profiles') as any).insert({
+        await supabase.from('profiles').insert({
           id: data.user.id,
           username,
           display_name: data.user.user_metadata?.full_name ?? username,

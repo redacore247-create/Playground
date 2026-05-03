@@ -28,14 +28,10 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
     if (loading || !hasMore) return
     setLoading(true)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createClient() as any
+    const supabase = createClient()
     const { data } = await supabase
       .from('releases')
-      .select(`
-        *,
-        profiles (id, username, display_name, avatar_url)
-      `)
+      .select('*, profiles (id, username, display_name, avatar_url)')
       .eq('status', 'published')
       .order('released_at', { ascending: false })
       .range(offsetRef.current, offsetRef.current + PAGE_SIZE - 1)
@@ -48,7 +44,6 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
     setLoading(false)
   }, [loading, hasMore])
 
-  // Intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => { if (entries[0].isIntersecting) loadMore() },
@@ -71,7 +66,6 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
         />
       ))}
 
-      {/* Infinite scroll sentinel */}
       <div ref={loadMoreRef} className="h-4" />
 
       {loading && (
@@ -81,9 +75,7 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
       )}
 
       {!hasMore && releases.length > 0 && (
-        <div className="text-center py-6 text-sm text-zinc-600">
-          You've seen it all ✨
-        </div>
+        <div className="text-center py-6 text-sm text-zinc-600">You've seen it all ✨</div>
       )}
 
       {releases.length === 0 && (
@@ -93,7 +85,6 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
         </div>
       )}
 
-      {/* Tip Modal */}
       {tipTarget && currentUser && (
         <TipModal
           releaseId={tipTarget.id}

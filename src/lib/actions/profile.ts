@@ -20,15 +20,7 @@ export async function getProfileByUsername(username: string): Promise<FullProfil
   const supabase = await createClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = supabase as any
-
-  const { data: profile, error } = await db
-    .from('profiles')
-    .select('*')
-    .eq('username', username)
-    .single()
-
+  const { data: profile, error } = await supabase.from('profiles').select('*').eq('username', username).single()
   if (error || !profile) return null
 
   const [
@@ -39,51 +31,21 @@ export async function getProfileByUsername(username: string): Promise<FullProfil
     { data: transactions },
     { data: predictions },
   ] = await Promise.all([
-    db.from('releases')
-      .select('*, profiles(id, username, display_name, avatar_url)')
-      .eq('creator_id', profile.id)
-      .eq('status', 'published')
-      .order('released_at', { ascending: false })
-      .limit(12),
-
-    db.from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', profile.id),
-
-    db.from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('follower_id', profile.id),
-
+    supabase.from('releases').select('*, profiles(id, username, display_name, avatar_url)')
+      .eq('creator_id', profile.id).eq('status', 'published').order('released_at', { ascending: false }).limit(12),
+    supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id),
+    supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id),
     authUser && authUser.id !== profile.id
-      ? db.from('follows')
-          .select('follower_id')
-          .eq('follower_id', authUser.id)
-          .eq('following_id', profile.id)
-          .maybeSingle()
+      ? supabase.from('follows').select('follower_id').eq('follower_id', authUser.id).eq('following_id', profile.id).maybeSingle()
       : Promise.resolve({ data: null }),
-
     authUser?.id === profile.id
-      ? db.from('point_transactions')
-          .select('*')
-          .eq('user_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(20)
+      ? supabase.from('point_transactions').select('*').eq('user_id', profile.id).order('created_at', { ascending: false }).limit(20)
       : Promise.resolve({ data: [] }),
-
-    db.from('predictions')
-      .select('points_returned')
-      .eq('user_id', profile.id),
+    supabase.from('predictions').select('points_returned').eq('user_id', profile.id),
   ])
 
-  const correctPredictions = (predictions ?? []).filter(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (p: any) => p.points_returned !== null && p.points_returned > 0
-  ).length
-
-  const totalTipsReceived = (releases ?? []).reduce(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (sum: number, r: any) => sum + (r.tip_total ?? 0), 0
-  )
+  const correctPredictions = (predictions as any[] ?? []).filter((p: any) => p.points_returned !== null && p.points_returned > 0).length
+  const totalTipsReceived = (releases as any[] ?? []).reduce((sum: number, r: any) => sum + (r.tip_total ?? 0), 0)
 
   return {
     profile: profile as Profile,
