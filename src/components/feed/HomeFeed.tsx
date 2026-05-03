@@ -28,7 +28,8 @@ export function HomeFeed({ initialReleases, currentUser }: HomeFeedProps) {
     if (loading || !hasMore) return
     setLoading(true)
 
-    const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = createClient() as any
     const { data } = await supabase
       .from('releases')
       .select(`
